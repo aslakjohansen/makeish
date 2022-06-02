@@ -33,7 +33,6 @@ class RecipeTex (Recipe):
   
   def build_linux(self):
     retcode = systempipe(self.command)
-    print("retcode", retcode, type(retcode))
     return "new" if retcode==0 else "error"
   
   def extract_deps (self, mo):
