@@ -4,6 +4,7 @@ from sys import argv, platform
 from os.path import exists, getmtime
 
 default_targets = []
+silent = False
 
 # this is the suite of abstract recipies
 recipies = [] 
@@ -35,7 +36,7 @@ class Recipe:
   def build_windows(self):
     raise Exception("Recipe '%s' has not been defined for platform '%s'." % (str(__class__), platform))
   
-  def uptodate(self):
+  def uptodate (self):
     # guard: target does not exist
     if not exists(self.target): return False
     
@@ -45,26 +46,29 @@ class Recipe:
   
   def build (self):
     for child in self.children:
-      child.build()
+      status = child.build()
+      if status=="error": return status
     
     if self.uptodate():
       report_status(self.target, "uptodate")
-      return
+      return "old"
     
     report_status(self.target, "building")
     if platform=="linux":
-      self.build_linux()
+      return self.build_linux()
     elif platform=="windows":
-      self.build_windows()
+      return self.build_windows()
     else:
       raise Exception("Unknown platform '%s' in recipie '%s'." % (platform, str(__class__)))
+    return "error"
   
   @abc.abstractmethod
   def extract_deps (self, mo):
     return []
   
   def print (self, indent=""):
-    print("%s- %s \"%s\"" % (indent, str(type(self)), self.target))
+    if not silent:
+      print("%s- %s \"%s\"" % (indent, str(type(self)), self.target))
     for child in self.children:
       child.print(indent+"  ")
 
@@ -111,7 +115,9 @@ def build (target):
   if node==None: return None
 #  print("Node to build: "+str(node)+" '"+node.target+"' with children "+str(node.children[0].target))
   node.print()
-  node.build()
+  status = node.build()
+  if status=="error":
+    print("Error: Failed to build '%s'." % target)
 
 #################################################################################
 ####################################################################### interface

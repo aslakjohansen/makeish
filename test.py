@@ -15,8 +15,8 @@ class RecipeC (Recipe):
     super(RecipeC, self).__init__(target)
   
   def build_linux(self):
-    failure = systempipe(self.command)
-    return failure==0
+    retcode = systempipe(self.command)
+    return "new" if retcode==0 else "error"
   
   def extract_deps (self, mo):
     output_filename = mo.group(1)
@@ -25,8 +25,27 @@ class RecipeC (Recipe):
     return [input_filename]
   
 
+class RecipeTex (Recipe):
+  pattern = re.compile("(.+).pdf$")
+  
+  def __init__ (self, target):
+    super(RecipeTex, self).__init__(target)
+  
+  def build_linux(self):
+    retcode = systempipe(self.command)
+    print("retcode", retcode, type(retcode))
+    return "new" if retcode==0 else "error"
+  
+  def extract_deps (self, mo):
+    basename = mo.group(1)
+    input_filename = "%s.tex" % basename
+    self.command = "pdflatex -shell-escape %s" % (input_filename)
+    return [input_filename]
+  
+
 add_recipe(RecipeC)
-set_default("hello")
+add_recipe(RecipeTex)
+set_default(["hello", "document.pdf"])
 
 main()
 
