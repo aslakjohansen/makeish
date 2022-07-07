@@ -56,7 +56,7 @@ class Recipe:
     report_status(self.target, "building")
     if platform=="linux":
       return self.build_linux()
-    elif platform=="windows":
+    elif platform=="win32":
       return self.build_windows()
     else:
       raise Exception("Unknown platform '%s' in recipie '%s'." % (platform, str(__class__)))

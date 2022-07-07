@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='makeish',
-      version='0.0.1',
+      version='0.0.2',
       description='Reimagines the make build system in python with simplicity in mind',
       url='https://github.com/aslakjohansen/makeish',
       author='Aslak Johansen',
